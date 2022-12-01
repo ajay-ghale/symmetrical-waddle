@@ -1,0 +1,23 @@
+name: CI
+on:
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PRESET : ${{ secrets.PRESET }}
+      SOURCE : ${{ secrets.SOURCE }}
+      DEST: ${{ secrets.DEST }}
+      KEY: ${{ secrets.KEY }}
+
+    steps:
+      - name: Checkout repository content
+        run: sudo apt-get install ffmpeg -y
+      - name: Run container
+        run: | 
+              ffmpeg \
+              -re -i "$SOURCE" -vcodec libx264 -preset $PRESET -maxrate 3000k -b:v 2500k \
+              -bufsize 600k -pix_fmt yuv420p -g 60 -c:a aac -b:a 160k -ac 2 \
+              -ar 44100 -f flv -s 1280x720 "$DEST/$KEY"
