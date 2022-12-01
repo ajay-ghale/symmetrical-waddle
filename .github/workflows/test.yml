@@ -14,10 +14,12 @@ jobs:
 
     steps:
       - name: Checkout repository content
+        uses: actions/checkout@v2
+      - name: install ffmpeg
         run: sudo apt-get install ffmpeg -y
       - name: Run container
         run: | 
               ffmpeg \
-              -re -i "$SOURCE" -vcodec libx264 -preset $PRESET -maxrate 3000k -b:v 2500k \
+              -re -i "$SOURCE" -i wmk.png -filter_complex "[1][0]scale2ref=w=oh*mdar:h=ih*0.08[logo][video];[video][logo]overlay=W-w-25:35" -vcodec libx264 -preset $PRESET -maxrate 3000k -b:v 2500k \
               -bufsize 600k -pix_fmt yuv420p -g 60 -c:a aac -b:a 160k -ac 2 \
               -ar 44100 -f flv -s 1280x720 "$DEST/$KEY"
